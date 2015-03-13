@@ -1,6 +1,7 @@
-(ns swarm.core)
+(ns swarm.core
+  (:require [swarm.particles :as particles]))
 
-(defn foo
-  "I don't do a whole lot."
-  [x]
-  (println x "Hello, World!"))
+(def particle-system (particles/init-particle-system 5))
+
+(defn -main []
+  (println particle-system))
