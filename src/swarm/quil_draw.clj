@@ -22,15 +22,15 @@
 
 (defn setup []
   (q/smooth)
-  (q/frame-rate 30)
+  (q/frame-rate 60)
   (q/stroke 100)
   (q/fill 50)
-  (q/stroke-weight 4)
-  (q/set-state! :particle-system (particles/init-particle-system 5)))
+  (q/stroke-weight 1)
+  (q/set-state! :particle-system (particles/init-particle-system 5))
+  (println (q/state-atom)))
 
 (defn draw []
   (let [particles-list (:particles (q/state :particle-system))]
-    (q/background 200)
     (draw-particles particles-list)
     (run-system)))
 

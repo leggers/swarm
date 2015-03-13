@@ -17,7 +17,7 @@
   ParticleUpdater
   (update-position [particle]
     (assoc particle :position (+ (:position particle)
-                          1))))
+                                 (:velocity particle)))))
 
 (defrecord ParticleSystem [particles
                            n-particles
@@ -33,16 +33,16 @@
 (defn make-particle [x y z]
   (->Particle
     (array [x y z])
-    (array [0 0 0])
+    (array [1 1 0])
     (array [0 0 0])
     5))
 
 (defn init-particle-system [n]
   (->ParticleSystem
-    (take n (repeat (make-particle
-                      (rand)
-                      (rand)
-                      (rand))))
+    (repeat n (make-particle
+                      (rand 3)
+                      (rand 4)
+                      (rand 5)))
     n
     0
     []
