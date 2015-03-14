@@ -5,10 +5,10 @@
 
 ; This will be the diff-eq solver.
 (defprotocol ParticleUpdater
-  (update-position [particle]))
+  (update-position [particle simulation-time]))
 
 (defprotocol ParticleSystemUpdater
-  (update-all-positions [system]))
+  (step [system]))
 
 (defrecord Particle [position
                      velocity
@@ -16,9 +16,12 @@
                      mass]
 
   ParticleUpdater
-  (update-position [particle]
-    (assoc particle :position (+ (:position particle)
-                                 (:velocity particle)))))
+  (update-position [particle simulation-time]
+    (assoc
+      (assoc particle :position (+ (:position particle)
+                                   (:velocity particle)))
+      :velocity (+ (:velocity particle)
+                   0))))
 
 (defrecord ParticleSystem [particles
                            n-particles
@@ -27,9 +30,12 @@
                            n-forces]
 
   ParticleSystemUpdater
-  (update-all-positions [system]
-    (assoc system :particles (map update-position
-                                  (:particles system)))))
+  (step [system]
+    (let [next-step-time (inc (:simulation-time system))]
+      (assoc
+        (assoc system :particles (map #(update-position % next-step-time)
+                                      (:particles system)))
+        :simulation-time next-step-time))))
 
 (defn init-particle-system [n]
   (->ParticleSystem
@@ -37,7 +43,9 @@
                     [(rand 10)
                      (rand 10)
                      (rand 10)]
-                    [0 0 0]
+                    [(rand 3)
+                     (rand 3)
+                     (rand 3)]
                     [0 0 0]
                     5))
     n

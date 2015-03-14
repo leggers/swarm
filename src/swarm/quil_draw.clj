@@ -8,7 +8,7 @@
   (swap! (q/state-atom)
          update-in
          [:particle-system]
-         #(particles/update-all-positions %)))
+         #(particles/step %)))
 
 (defn draw-particles [particles-list]
   (dorun
@@ -26,8 +26,7 @@
   (q/stroke 100)
   (q/fill 50)
   (q/stroke-weight 1)
-  (q/set-state! :particle-system (particles/init-particle-system 5))
-  (println (q/state-atom)))
+  (q/set-state! :particle-system (particles/init-particle-system 200)))
 
 (defn draw []
   (let [particles-list (:particles (q/state :particle-system))]
