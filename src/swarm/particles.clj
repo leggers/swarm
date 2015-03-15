@@ -52,9 +52,7 @@
   (step [system]
     (let [next-step-time (inc simulation-time)
           force-reset-particles (map reset-forces particles)
-          asdlkfj (println force-reset-particles)
-          forced-particles (apply-forces system)
-          asdlfkjasd (println forced-particles)]
+          forced-particles (apply-forces system)]
       (assoc system :particles (map #(update-particle % 1)
                                     forced-particles)
                     :simulation-time next-step-time))))
