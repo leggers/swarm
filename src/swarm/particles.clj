@@ -38,7 +38,8 @@
 
 (defn spring [spring-key spring-constant damping-constant rest-length]
   (fn [particles]
-    (let [attached-particles (filter #(-> % :spring spring-key) particles)
+    (let [attached-particles (filter #(= (:spring %) spring-key) particles)
+          blah (println attached-particles)
           p1 (first attached-particles)
           p2 (second attached-particles)
           displacement (- (:position p1) (:position p2))
@@ -48,11 +49,13 @@
           damping-force (/ (dot velocity-difference displacement) displacement-magnitude)
           force-direction (normalise displacement)
           force-1 (- (* (+ displacement-force damping-force) force-direction))
-          force-2 (- force-1)]
-      (map #(case %
-              p1 (apply-force % force-1)
-              p2 (apply-force % force-2)
-              %)))))
+          force-2 (- force-1)
+          spring-key (:spring p1)]
+      (map #(cond
+              (= % p1) (apply-force % force-1)
+              (= % p2) (apply-force % force-2)
+              :else %)
+           particles))))
 
 (defprotocol ParticleSystemUpdater
   (apply-forces [system])
@@ -84,18 +87,36 @@
 (defn init-particle-system [n]
   (->ParticleSystem
     (vec (repeatedly n #(->Particle
-                    (array [(rand 10)
-                            (rand 10)
-                            (rand 10)])
-                    (array [(rand 10)
-                            (rand 5)
-                            (rand 3)])
-                    (array [0 0 0])
-                    500)))
+                          (array [(rand 10)
+                                  (rand 10)
+                                  (rand 10)])
+                          (array [(rand 10)
+                                  (rand 5)
+                                  (rand 3)])
+                          (array [0 0 0])
+                          500)))
     0
     [toy-gravity]))
 
-(def sys (init-particle-system 5))
+(defn init-spring-system []
+  (let [spring-key :s1
+        particles (vec (repeatedly 2 #(->Particle
+                                        (array [(rand 100)
+                                                (rand 50)
+                                                0])
+                                        (array [0
+                                                (rand 1)
+                                                0])
+                                        (array [0 0 0])
+                                        1000)))
+        attached-particles (map #(assoc % :spring spring-key)
+                                particles)]
+    (->ParticleSystem
+      attached-particles
+      0
+      [(spring spring-key 0.1 10 10)])))
+
+(def sys (init-spring-system))
 
 (defn -main []
   (println sys)
