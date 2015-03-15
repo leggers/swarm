@@ -43,7 +43,7 @@
   (def violet (q/color 238 130 238))
   (def rainbow [red orange yellow green blue indigo violet])
   (q/stroke-weight 0)
-  (q/set-state! :particle-system (particles/init-particle-system 200)))
+  (q/set-state! :particle-system (particles/init-particle-system 500)))
 
 (defn draw []
   (let [particle-system (q/state :particle-system)

@@ -5,7 +5,7 @@
 
 ; This will be the diff-eq solver.
 (defprotocol ParticleUpdater
-  (update-position [particle simulation-time]))
+  (update-particle [particle simulation-time]))
 
 (defprotocol ParticleSystemUpdater
   (step [system]))
@@ -16,7 +16,7 @@
                      mass]
 
   ParticleUpdater
-  (update-position [particle simulation-time]
+  (update-particle [particle simulation-time]
     (assoc
       (assoc particle :position (+ (:position particle)
                                    (:velocity particle)))
@@ -33,7 +33,7 @@
   (step [system]
     (let [next-step-time (inc (:simulation-time system))]
       (assoc
-        (assoc system :particles (map #(update-position % next-step-time)
+        (assoc system :particles (map #(update-particle % next-step-time)
                                       (:particles system)))
         :simulation-time next-step-time))))
 
