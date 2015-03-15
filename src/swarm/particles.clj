@@ -7,7 +7,6 @@
   (let [current-forces (:force-accumulator particle)]
     (assoc particle :force-accumulator (+ current-forces [0 1 0]))))
 
-; This will be the diff-eq solver.
 (defprotocol ParticleUpdater
   (update-particle [particle simulation-time])
   (reset-forces [particle]))
@@ -22,28 +21,22 @@
 
   ParticleUpdater
   (update-particle [particle time-step-length]
-    (let [position (:position particle)
-          velocity (:velocity particle)
-          forces (:force-accumulator particle)]
-     (assoc
-      (assoc particle :position (+ position
-                                   (* velocity time-step-length)))
-      :velocity (+ velocity
-                   (/ forces mass)))))
+    (assoc particle :position (+ position
+                                 (* velocity time-step-length))
+                    :velocity (+ velocity
+                                (/ force-accumulator mass))))
+
   (reset-forces [particle]
-    (assoc particle :force-accumulator (* (:force-accumulator particle)
+    (assoc particle :force-accumulator (* force-accumulator
                                           0))))
 
 (defrecord ParticleSystem [particles
-                           n-particles
                            simulation-time
-                           forces
-                           n-forces]
+                           forces]
 
   ParticleSystemUpdater
   (step [system]
-    (let [next-step-time (inc (:simulation-time system))
-          curr-particles (:particles system)
+    (let [next-step-time (inc simulation-time)
           force-reset-particles (map reset-forces particles)
           forced-particles (map #(toy-force % system) force-reset-particles)]
       (assoc
@@ -62,10 +55,8 @@
                             (rand 3)])
                     (array [0 0 0])
                     50))
-    n
     0
-    []
-    0))
+    []))
 
 (def sys (init-particle-system 5))
 
