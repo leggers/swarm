@@ -1,6 +1,8 @@
 (ns swarm.particles
   (:use [clojure.core.matrix]
-        [clojure.core.matrix.operators]))
+        [clojure.core.matrix.operators])
+  (:require [clojure.math.numeric-tower :as math]
+            [mikera.vectorz.core :as vec-math]))
 (set-current-implementation :vectorz)
 
 (defprotocol ParticleUpdater
@@ -24,13 +26,33 @@
     (assoc particle :force-accumulator (* force-accumulator
                                           0))))
 
+(defn apply-force [particle delta-force]
+  (let [current-forces (:force-accumulator particle)]
+    (assoc particle :force-accumulator (+ current-forces delta-force))))
 
-(defn toy-gravity [system]
-  (map #(let [current-forces (:force-accumulator %)]
-          (if (:no-gravity %)
-            %
-            (assoc % :force-accumulator (+ current-forces [0 1 0]))))
-       system))
+(defn toy-gravity [particles]
+  (map #(if (:no-gravity %)
+          %
+          (apply-force % [0 1 0]))
+       particles))
+
+(defn spring [spring-key spring-constant damping-constant rest-length]
+  (fn [particles]
+    (let [attached-particles (filter #(-> % :spring spring-key) particles)
+          p1 (first attached-particles)
+          p2 (second attached-particles)
+          displacement (- (:position p1) (:position p2))
+          displacement-magnitude (vec-math/magnitude displacement)
+          displacement-force (* spring-constant (- displacement-magnitude rest-length))
+          velocity-difference (- (:velocity p1) (:velocity p2))
+          damping-force (/ (dot velocity-difference displacement) displacement-magnitude)
+          force-direction (normalise displacement)
+          force-1 (- (* (+ displacement-force damping-force) force-direction))
+          force-2 (- force-1)]
+      (map #(case %
+              p1 (apply-force % force-1)
+              p2 (apply-force % force-2)
+              %)))))
 
 (defprotocol ParticleSystemUpdater
   (apply-forces [system])
