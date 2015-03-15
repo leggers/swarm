@@ -1,8 +1,19 @@
 (ns swarm.quil-draw
   (:require [quil.core :as q]
-            [swarm.particles :as particles]))
+            [swarm.particles :as particles]
+            [clojure.math.numeric-tower :as math]))
 
 (def diameter 10)
+(def steps-per-color 20)
+
+(defn rainbow-color [step rainbow]
+  (let [colors-in-rainbow (count rainbow)
+        color-index (math/floor (/ step steps-per-color))
+        color-1 (get rainbow (mod color-index colors-in-rainbow))
+        color-2 (get rainbow (mod (inc color-index) colors-in-rainbow))
+        color-distance (/ (mod step steps-per-color)
+                          steps-per-color)]
+    (q/lerp-color color-1 color-2 color-distance)))
 
 (defn run-system []
   (swap! (q/state-atom)
@@ -23,13 +34,22 @@
 (defn setup []
   (q/smooth)
   (q/frame-rate 60)
-  (q/stroke 100)
-  (q/fill 50)
-  (q/stroke-weight 1)
+  (def red (q/color 255 0 0))
+  (def orange (q/color 255 165 0))
+  (def yellow (q/color 255 255 0))
+  (def green (q/color 0 255 0))
+  (def blue (q/color 0 0 255))
+  (def indigo (q/color 75 0 130))
+  (def violet (q/color 238 130 238))
+  (def rainbow [red orange yellow green blue indigo violet])
+  (q/stroke-weight 0)
   (q/set-state! :particle-system (particles/init-particle-system 200)))
 
 (defn draw []
-  (let [particles-list (:particles (q/state :particle-system))]
+  (let [particle-system (q/state :particle-system)
+        particles-list (:particles particle-system)
+        step (:simulation-time particle-system)]
+    (q/fill (rainbow-color step rainbow))
     (draw-particles particles-list)
     (run-system)))
 
