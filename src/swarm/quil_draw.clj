@@ -42,16 +42,20 @@
   (def indigo (q/color 75 0 130))
   (def violet (q/color 238 130 238))
   (def rainbow [red orange yellow green blue indigo violet])
-  (q/stroke-weight 0)
-  (q/set-state! :particle-system (particles/init-particle-system 500)))
+  (q/set-state! :particle-system (particles/init-particle-system 500))
+  (println (q/state-atom)))
 
 (defn draw []
   (let [particle-system (q/state :particle-system)
         particles-list (:particles particle-system)
-        step (:simulation-time particle-system)]
-    (q/fill (rainbow-color step rainbow))
+        step (:simulation-time particle-system)
+        color (rainbow-color step rainbow)]
+    (q/fill color)
+    (q/stroke color)
     (draw-particles particles-list)
-    (run-system)))
+    (run-system)
+    ; (println (q/state-atom))
+    ))
 
 (defn -main []
   (q/defsketch particle-test
