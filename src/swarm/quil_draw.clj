@@ -56,6 +56,7 @@
         step (:simulation-time particle-system)
         color (rainbow-color step rainbow)]
     (q/fill color)
+    ; (q/background 200)
     (q/stroke color)
     (draw-particles particles-list)
     (run-system)))

@@ -39,18 +39,18 @@
 (defn spring [spring-key spring-constant damping-constant rest-length]
   (fn [particles]
     (let [attached-particles (filter #(= (:spring %) spring-key) particles)
-          blah (println attached-particles)
           p1 (first attached-particles)
           p2 (second attached-particles)
           displacement (- (:position p1) (:position p2))
           displacement-magnitude (vec-math/magnitude displacement)
           displacement-force (* spring-constant (- displacement-magnitude rest-length))
           velocity-difference (- (:velocity p1) (:velocity p2))
-          damping-force (/ (dot velocity-difference displacement) displacement-magnitude)
+          damping-force (* damping-constant
+                           (/ (dot velocity-difference displacement) displacement-magnitude))
           force-direction (normalise displacement)
-          force-1 (- (* (+ displacement-force damping-force) force-direction))
-          force-2 (- force-1)
-          spring-key (:spring p1)]
+          force-magnitude (+ displacement-force damping-force)
+          force-1 (- (* force-direction force-magnitude))
+          force-2 (- force-1)]
       (map #(cond
               (= % p1) (apply-force % force-1)
               (= % p2) (apply-force % force-2)
@@ -58,7 +58,7 @@
            particles))))
 
 (defprotocol ParticleSystemUpdater
-  (apply-forces [system])
+  (update-forces [system])
   (step [system]))
 
 (defrecord ParticleSystem [particles
@@ -66,8 +66,9 @@
                            forces]
 
   ParticleSystemUpdater
-  (apply-forces [system]
-    (loop [current-particles particles
+  ; Resets forces from previous step and evaluates forces for current step.
+  (update-forces [system]
+    (loop [current-particles (map reset-forces particles)
            force-to-apply (first forces)
            forces-left (rest forces)]
       (if (nil? force-to-apply)
@@ -77,10 +78,10 @@
                (rest forces-left)))))
 
   (step [system]
-    (let [next-step-time (inc simulation-time)
-          force-reset-particles (map reset-forces particles)
-          forced-particles (apply-forces system)]
-      (assoc system :particles (map #(update-particle % 1)
+    (let [time-step-size 1
+          next-step-time (+ simulation-time time-step-size)
+          forced-particles (update-forces system)]
+      (assoc system :particles (map #(update-particle % time-step-size)
                                     forced-particles)
                     :simulation-time next-step-time))))
 
@@ -101,20 +102,20 @@
 (defn init-spring-system []
   (let [spring-key :s1
         particles (vec (repeatedly 2 #(->Particle
-                                        (array [(rand 100)
-                                                (rand 50)
+                                        (array [(+ 250 (rand 100))
+                                                250
                                                 0])
                                         (array [0
-                                                (rand 1)
+                                                0
                                                 0])
                                         (array [0 0 0])
-                                        1000)))
+                                        100)))
         attached-particles (map #(assoc % :spring spring-key)
                                 particles)]
     (->ParticleSystem
       attached-particles
       0
-      [(spring spring-key 0.1 10 10)])))
+      [(spring spring-key 0.2 1 100)])))
 
 (def sys (init-spring-system))
 
