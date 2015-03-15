@@ -3,22 +3,16 @@
         [clojure.core.matrix.operators]))
 (set-current-implementation :vectorz)
 
-(defn toy-force [particle system]
-  (let [current-forces (:force-accumulator particle)]
-    (assoc particle :force-accumulator (+ current-forces [0 1 0]))))
-
 (defprotocol ParticleUpdater
   (update-particle [particle simulation-time])
   (reset-forces [particle]))
-
-(defprotocol ParticleSystemUpdater
-  (step [system]))
 
 (defrecord Particle [position
                      velocity
                      force-accumulator
                      mass]
 
+  ; Use Euler's method for now
   ParticleUpdater
   (update-particle [particle time-step-length]
     (assoc particle :position (+ position
@@ -29,6 +23,14 @@
   (reset-forces [particle]
     (assoc particle :force-accumulator (* force-accumulator
                                           0))))
+
+
+(defn toy-force [particle system]
+  (let [current-forces (:force-accumulator particle)]
+    (assoc particle :force-accumulator (+ current-forces [0 1 0]))))
+
+(defprotocol ParticleSystemUpdater
+  (step [system]))
 
 (defrecord ParticleSystem [particles
                            simulation-time
