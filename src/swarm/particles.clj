@@ -25,9 +25,11 @@
                                           0))))
 
 
-(defn toy-force [system]
+(defn toy-gravity [system]
   (map #(let [current-forces (:force-accumulator %)]
-          (assoc % :force-accumulator (+ current-forces [0 1 0])))
+          (if (:no-gravity %)
+            %
+            (assoc % :force-accumulator (+ current-forces [0 1 0]))))
        system))
 
 (defprotocol ParticleSystemUpdater
@@ -59,17 +61,17 @@
 
 (defn init-particle-system [n]
   (->ParticleSystem
-    (repeatedly n #(->Particle
+    (vec (repeatedly n #(->Particle
                     (array [(rand 10)
                             (rand 10)
                             (rand 10)])
-                    (array [(rand 3)
-                            (rand 3)
+                    (array [(rand 10)
+                            (rand 5)
                             (rand 3)])
                     (array [0 0 0])
-                    50))
+                    500)))
     0
-    [toy-force]))
+    [toy-gravity]))
 
 (def sys (init-particle-system 5))
 
