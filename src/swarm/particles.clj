@@ -25,11 +25,13 @@
                                           0))))
 
 
-(defn toy-force [particle system]
-  (let [current-forces (:force-accumulator particle)]
-    (assoc particle :force-accumulator (+ current-forces [0 1 0]))))
+(defn toy-force [system]
+  (map #(let [current-forces (:force-accumulator %)]
+          (assoc % :force-accumulator (+ current-forces [0 1 0])))
+       system))
 
 (defprotocol ParticleSystemUpdater
+  (apply-forces [system])
   (step [system]))
 
 (defrecord ParticleSystem [particles
@@ -37,10 +39,22 @@
                            forces]
 
   ParticleSystemUpdater
+  (apply-forces [system]
+    (loop [current-particles particles
+           force-to-apply (first forces)
+           forces-left (rest forces)]
+      (if (nil? force-to-apply)
+        current-particles
+        (recur (force-to-apply current-particles)
+               (first forces-left)
+               (rest forces-left)))))
+
   (step [system]
     (let [next-step-time (inc simulation-time)
           force-reset-particles (map reset-forces particles)
-          forced-particles (map #(toy-force % system) force-reset-particles)]
+          asdlkfj (println force-reset-particles)
+          forced-particles (apply-forces system)
+          asdlfkjasd (println forced-particles)]
       (assoc system :particles (map #(update-particle % 1)
                                     forced-particles)
                     :simulation-time next-step-time))))
@@ -57,7 +71,7 @@
                     (array [0 0 0])
                     50))
     0
-    []))
+    [toy-force]))
 
 (def sys (init-particle-system 5))
 
