@@ -39,10 +39,9 @@
     (let [next-step-time (inc simulation-time)
           force-reset-particles (map reset-forces particles)
           forced-particles (map #(toy-force % system) force-reset-particles)]
-      (assoc
-        (assoc system :particles (map #(update-particle % 1)
-                                      forced-particles))
-        :simulation-time next-step-time))))
+      (assoc system :particles (map #(update-particle % 1)
+                                    forced-particles)
+                    :simulation-time next-step-time))))
 
 (defn init-particle-system [n]
   (->ParticleSystem
