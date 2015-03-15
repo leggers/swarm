@@ -99,14 +99,17 @@
     0
     [toy-gravity]))
 
+(defn plus-minus [n]
+  ((rand-nth [+ -]) n))
+
 (defn init-spring-system []
   (let [spring-key :s1
         particles (vec (repeatedly 2 #(->Particle
-                                        (array [(+ 250 (rand 100))
-                                                250
+                                        (array [(+ 250 (plus-minus (rand 100)))
+                                                (+ 250 (plus-minus (rand 50)))
                                                 0])
-                                        (array [0
-                                                0
+                                        (array [(plus-minus (rand 2))
+                                                (plus-minus (rand 2))
                                                 0])
                                         (array [0 0 0])
                                         100)))
@@ -115,7 +118,7 @@
     (->ParticleSystem
       attached-particles
       0
-      [(spring spring-key 0.2 1 100)])))
+      [(spring spring-key 0.2 0.2 100)])))
 
 (def sys (init-spring-system))
 
