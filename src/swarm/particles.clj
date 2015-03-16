@@ -131,14 +131,9 @@
   ParticleSystemUpdater
   ; Resets forces from previous step and evaluates forces for current step.
   (update-forces [system]
-    (loop [current-particles (map reset-forces particles)
-           force-to-apply (first forces)
-           forces-left (rest forces)]
-      (if (nil? force-to-apply)
-        current-particles
-        (recur (force-to-apply current-particles)
-               (first forces-left)
-               (rest forces-left)))))
+    (let [composed-forces (apply comp forces)
+          force-reset-particles (map reset-forces particles)]
+      (composed-forces force-reset-particles)))
 
   (step [system]
     (let [time-step-size 1
@@ -176,10 +171,10 @@
                           50)))
     0
     [(toy-gravity-force 5)
-     (plane-collison-force (array [-1 0 0]) (array [0 0 0]) 0.8)
-     (plane-collison-force (array [0 -1 0]) (array [0 0 0]) 0.8)
-     (plane-collison-force (array [1 0 0]) (array [750 0 0]) 0.8)
-     (plane-collison-force (array [0 1 0]) (array [0 750 0]) 0.8)]))
+     (plane-collison-force (array [-1 0 0]) (array [0 0 0]) 0.9)
+     (plane-collison-force (array [0 -1 0]) (array [0 0 0]) 0.9)
+     (plane-collison-force (array [1 0 0]) (array [750 0 0]) 0.9)
+     (plane-collison-force (array [0 1 0]) (array [0 750 0]) 0.9)]))
 
 (defn init-spring-system []
   (let [spring-key :s1
@@ -198,10 +193,10 @@
       attached-particles
       0
       [(spring-force spring-key 0.2 0.2 100)
-       (plane-collison-force (array [-1 0 0]) (array [0 0 0]) 0.8)
-       (plane-collison-force (array [0 -1 0]) (array [0 0 0]) 0.8)
-       (plane-collison-force (array [1 0 0]) (array [500 0 0]) 0.8)
-       (plane-collison-force (array [0 1 0]) (array [0 500 0]) 0.8)])))
+       (plane-collison-force (array [-1 0 0]) (array [0 0 0]) 0.9)
+       (plane-collison-force (array [0 -1 0]) (array [0 0 0]) 0.9)
+       (plane-collison-force (array [1 0 0]) (array [500 0 0]) 0.9)
+       (plane-collison-force (array [0 1 0]) (array [0 500 0]) 0.9)])))
 
 (def sys (init-spring-system))
 
