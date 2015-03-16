@@ -43,7 +43,7 @@
   (def indigo (q/color 75 0 130))
   (def violet (q/color 238 130 238))
   (def rainbow [red orange yellow green blue indigo violet])
-  (q/set-state! :particle-system (particles/init-spring-system))
+  (q/set-state! :particle-system (particles/init-particle-system 500))
   ; (swap! (q/state-atom)
   ;        update-in
   ;        [:particle-system :particles 3]
@@ -67,4 +67,4 @@
     :title "Particles!!!!"
     :setup setup
     :draw draw
-    :size [500 500]))
+    :size [750 750]))

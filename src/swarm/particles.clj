@@ -60,7 +60,7 @@
 (defn toy-gravity-force [particles]
   (map #(if (:no-gravity %)
           %
-          (apply-force % [0 1 0]))
+          (apply-force % [0 5 0]))
        particles))
 
 ; Slightly more complicated. When a spring is added to a system, it needs to know
@@ -95,7 +95,7 @@
 ; velocity. Because we have descritized time steps, it doesn't make sense to try
 ; to model such a force. As such, we don't apply a "force" to the particle, per
 ; se, but modify it by applying the appropriate operation to its velocity.
-(defn plane-collison-force [normal-vector point-on-plane]
+(defn plane-collison-force [normal-vector point-on-plane relaxation]
   (fn [particles]
     (let [on-right-side #(< 0 (dot (- point-on-plane (:position %))
                                    normal-vector))
@@ -103,7 +103,8 @@
                             (- (* (dot (:velocity %)
                                        normal-vector)
                                   normal-vector
-                                  2)))]
+                                  2
+                                  relaxation)))]
       (map #(if (on-right-side %)
               %
               (assoc % :velocity (flip-velocity %)))
@@ -174,7 +175,11 @@
                           (array [0 0 0])
                           50)))
     0
-    [toy-gravity-force]))
+    [toy-gravity-force
+     (plane-collison-force (array [-1 0 0]) (array [0 0 0]) 0.8)
+     (plane-collison-force (array [0 -1 0]) (array [0 0 0]) 0.8)
+     (plane-collison-force (array [1 0 0]) (array [750 0 0]) 0.8)
+     (plane-collison-force (array [0 1 0]) (array [0 750 0]) 0.8)]))
 
 (defn init-spring-system []
   (let [spring-key :s1
@@ -193,10 +198,10 @@
       attached-particles
       0
       [(spring-force spring-key 0.2 0.2 100)
-       (plane-collison-force (array [-1 0 0]) (array [0 0 0]))
-       (plane-collison-force (array [0 -1 0]) (array [0 0 0]))
-       (plane-collison-force (array [1 0 0]) (array [500 0 0]))
-       (plane-collison-force (array [0 1 0]) (array [0 500 0]))])))
+       (plane-collison-force (array [-1 0 0]) (array [0 0 0]) 0.8)
+       (plane-collison-force (array [0 -1 0]) (array [0 0 0]) 0.8)
+       (plane-collison-force (array [1 0 0]) (array [500 0 0]) 0.8)
+       (plane-collison-force (array [0 1 0]) (array [0 500 0]) 0.8)])))
 
 (def sys (init-spring-system))
 
