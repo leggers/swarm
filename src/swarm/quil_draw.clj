@@ -34,6 +34,7 @@
 (defn setup []
   (q/smooth)
   (q/frame-rate 60)
+  (q/background 0)
   (def red (q/color 255 0 0))
   (def orange (q/color 255 165 0))
   (def yellow (q/color 255 255 0))
