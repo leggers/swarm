@@ -90,6 +90,25 @@
               :else %)
            particles))))
 
+; Plane collisions are slightly different than springs or gravity because they
+; supply instantaneous forces that flip the normal component of the particle's
+; velocity. Because we have descritized time steps, it doesn't make sense to try
+; to model such a force. As such, we don't apply a "force" to the particle, per
+; se, but modify it by applying the appropriate operation to its velocity.
+(defn plane-collison-force [normal-vector point-on-plane]
+  (fn [particles]
+    (let [on-right-side #(< 0 (dot (- point-on-plane (:position %))
+                                   normal-vector))
+          flip-velocity #(+ (:velocity %)
+                            (- (* (dot (:velocity %)
+                                       normal-vector)
+                                  normal-vector
+                                  2)))]
+      (map #(if (on-right-side %)
+              %
+              (assoc % :velocity (flip-velocity %)))
+           particles))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; PARTICLE SYSTEM - Implementation of a system of particles.
@@ -153,7 +172,7 @@
                                   (rand 5)
                                   (rand 3)])
                           (array [0 0 0])
-                          500)))
+                          50)))
     0
     [toy-gravity-force]))
 
@@ -173,7 +192,11 @@
     (->ParticleSystem
       attached-particles
       0
-      [(spring-force spring-key 0.2 0.2 100)])))
+      [(spring-force spring-key 0.2 0.2 100)
+       (plane-collison-force (array [-1 0 0]) (array [0 0 0]))
+       (plane-collison-force (array [0 -1 0]) (array [0 0 0]))
+       (plane-collison-force (array [1 0 0]) (array [500 0 0]))
+       (plane-collison-force (array [0 1 0]) (array [0 500 0]))])))
 
 (def sys (init-spring-system))
 
