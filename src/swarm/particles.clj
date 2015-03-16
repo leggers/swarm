@@ -54,14 +54,14 @@
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; Gravitational constant is 1. Can exlude particles if the field :no-gravity is
-; set to true. Implemented that way so not every particle needs a :gravity true
-; added to its attributes.
-(defn toy-gravity-force [particles]
-  (map #(if (:no-gravity %)
-          %
-          (apply-force % [0 5 0]))
-       particles))
+; Can exlude particles if the field :no-gravity is set to true. Implemented that
+; way so not every particle needs a :gravity true added to its attributes.
+(defn toy-gravity-force [gravitational-constant]
+  (fn [particles]
+    (map #(if (:no-gravity %)
+            %
+            (apply-force % [0 gravitational-constant 0]))
+         particles)))
 
 ; Slightly more complicated. When a spring is added to a system, it needs to know
 ; which particles to act on. This is accomplished by setting a key in the :spring
@@ -175,7 +175,7 @@
                           (array [0 0 0])
                           50)))
     0
-    [toy-gravity-force
+    [(toy-gravity-force 5)
      (plane-collison-force (array [-1 0 0]) (array [0 0 0]) 0.8)
      (plane-collison-force (array [0 -1 0]) (array [0 0 0]) 0.8)
      (plane-collison-force (array [1 0 0]) (array [750 0 0]) 0.8)
