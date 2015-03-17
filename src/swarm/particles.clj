@@ -97,17 +97,25 @@
 ; se, but modify it by applying the appropriate operation to its velocity.
 (defn plane-collison-force [normal-vector point-on-plane relaxation]
   (fn [particles]
-    (let [on-right-side #(< 0 (dot (- point-on-plane (:position %))
+    (let [displacement-to-plane #(- point-on-plane (:position %))
+          on-right-side #(< 0 (dot (displacement-to-plane %)
                                    normal-vector))
-          flip-velocity #(+ (:velocity %)
-                            (- (* (dot (:velocity %)
-                                       normal-vector)
-                                  normal-vector
-                                  2
-                                  relaxation)))]
+          bounced-velocity #(+ (:velocity %)
+                               (- (* (dot (:velocity %)
+                                          normal-vector)
+                                     normal-vector
+                                     2
+                                     relaxation)))
+          adjusted-position #(+ (:position %)
+                                (- (* (dot (:position %)
+                                           normal-vector)
+                                      normal-vector
+                                      2)))]
       (map #(if (on-right-side %)
               %
-              (assoc % :velocity (flip-velocity %)))
+              (assoc % :velocity (bounced-velocity %)
+                       ; :position (adjusted-position %)
+                       ))
            particles))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -192,11 +200,11 @@
     (->ParticleSystem
       attached-particles
       0
-      [(spring-force spring-key 0.2 0.2 100)
+      [(spring-force spring-key 0.2 0 100)
        (plane-collison-force (array [-1 0 0]) (array [0 0 0]) 0.9)
        (plane-collison-force (array [0 -1 0]) (array [0 0 0]) 0.9)
-       (plane-collison-force (array [1 0 0]) (array [500 0 0]) 0.9)
-       (plane-collison-force (array [0 1 0]) (array [0 500 0]) 0.9)])))
+       (plane-collison-force (array [1 0 0]) (array [750 0 0]) 0.9)
+       (plane-collison-force (array [0 1 0]) (array [0 750 0]) 0.9)])))
 
 (def sys (init-spring-system))
 
