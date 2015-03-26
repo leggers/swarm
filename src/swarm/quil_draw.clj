@@ -57,6 +57,7 @@
         step (:simulation-time particle-system)
         color (rainbow-color step rainbow)]
     (q/fill color)
+    (q/save-frame "bounce-####")
     ; (q/background 200)
     (q/stroke color)
     (draw-particles particles-list)
@@ -67,4 +68,4 @@
     :title "Particles!!!!"
     :setup setup
     :draw draw
-    :size [750 750]))
+    :size [500 500]))

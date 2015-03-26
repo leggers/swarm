@@ -181,18 +181,18 @@
     [(toy-gravity-force 5)
      (plane-collison-force (array [-1 0 0]) (array [0 0 0]) 0.9)
      (plane-collison-force (array [0 -1 0]) (array [0 0 0]) 0.9)
-     (plane-collison-force (array [1 0 0]) (array [750 0 0]) 0.9)
-     (plane-collison-force (array [0 1 0]) (array [0 750 0]) 0.9)]))
+     (plane-collison-force (array [1 0 0]) (array [500 0 0]) 0.9)
+     (plane-collison-force (array [0 1 0]) (array [0 500 0]) 0.9)]))
 
 (defn init-spring-system []
   (let [spring-key :s1
         particles (vec (repeatedly 2 #(->Particle
                                         (array [(+ 250 (plus-minus (rand 100)))
                                                 (+ 250 (plus-minus (rand 50)))
-                                                0])
+                                                (+ 250 (plus-minus (rand 50)))])
                                         (array [(plus-minus (rand 2))
                                                 (plus-minus (rand 2))
-                                                0])
+                                                (plus-minus (rand 2))])
                                         (array [0 0 0])
                                         100)))
         attached-particles (map #(assoc % :spring spring-key)
@@ -203,8 +203,8 @@
       [(spring-force spring-key 0.2 0 100)
        (plane-collison-force (array [-1 0 0]) (array [0 0 0]) 0.9)
        (plane-collison-force (array [0 -1 0]) (array [0 0 0]) 0.9)
-       (plane-collison-force (array [1 0 0]) (array [750 0 0]) 0.9)
-       (plane-collison-force (array [0 1 0]) (array [0 750 0]) 0.9)])))
+       (plane-collison-force (array [1 0 0]) (array [500 0 0]) 0.9)
+       (plane-collison-force (array [0 1 0]) (array [0 500 0]) 0.9)])))
 
 (def sys (init-spring-system))
 
