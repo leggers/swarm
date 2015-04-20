@@ -57,7 +57,7 @@
         step (:simulation-time particle-system)
         color (rainbow-color step rainbow)]
     (q/fill color)
-    (q/save-frame "bounce-####")
+    ; (q/save-frame "bounce-####")
     ; (q/background 200)
     (q/stroke color)
     (draw-particles particles-list)
